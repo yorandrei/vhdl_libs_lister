@@ -14,7 +14,7 @@ func main() {
 
 	fmt.Println("Inspected Source Files:")
 	for _, f := range files {
-		fmt.Println(f.Name())
+		fmt.Println(f)
 	}
 	/*
 		fmt.Printf("\n\n\n")

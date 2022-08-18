@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-func ListFiles() ([]os.FileInfo, error) {
+func ListFiles() ([]string, error) {
 	//rootDir := "C:\\c\\Frosty\\Repo"
 
 	rootDir, err := os.Getwd()
@@ -18,15 +18,13 @@ func ListFiles() ([]os.FileInfo, error) {
 		return nil, err
 	}
 
-	path, _ := os.Getwd()
-	files := getFiles(f, path)
+	files := getFiles(f, rootDir)
 
 	return files, nil
 }
 
-func getFiles(dir *os.File, path string) []os.FileInfo {
-	var files []os.FileInfo
-	dirs := []*os.File{}
+func getFiles(dir *os.File, path string) []string {
+	var files []string
 
 	//fmt.Println("getFiles called from ", dir.Name())
 
@@ -39,16 +37,15 @@ func getFiles(dir *os.File, path string) []os.FileInfo {
 		if v.Name()[0] == '.' {
 			continue
 		}
+		fullpath := filepath.Join(path, v.Name())
 		if v.IsDir() {
-			newpath := filepath.Join(path, v.Name())
-			d, err := os.Open(newpath)
-			fs := getFiles(d, newpath)
-			files = append(files, fs...)
+			d, err := os.Open(fullpath)
 			if err == nil {
-				dirs = append(dirs, d)
+				fs := getFiles(d, fullpath)
+				files = append(files, fs...)
 			}
 		} else {
-			files = append(files, v)
+			files = append(files, fullpath)
 		}
 	}
 
