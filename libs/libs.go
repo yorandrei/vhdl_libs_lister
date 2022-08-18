@@ -1,12 +1,13 @@
 package libs
 
 import (
+	"bufio"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func ListFiles() ([]string, error) {
-	//rootDir := "C:\\c\\Frosty\\Repo"
 
 	rootDir, err := os.Getwd()
 	if err != nil {
@@ -26,8 +27,6 @@ func ListFiles() ([]string, error) {
 func getFiles(dir *os.File, path string) []string {
 	var files []string
 
-	//fmt.Println("getFiles called from ", dir.Name())
-
 	objects, err := dir.Readdir(0)
 	if err != nil {
 		return nil
@@ -40,6 +39,7 @@ func getFiles(dir *os.File, path string) []string {
 		fullpath := filepath.Join(path, v.Name())
 		if v.IsDir() {
 			d, err := os.Open(fullpath)
+			defer d.Close()
 			if err == nil {
 				fs := getFiles(d, fullpath)
 				files = append(files, fs...)
@@ -52,12 +52,37 @@ func getFiles(dir *os.File, path string) []string {
 	return files
 }
 
-/*
-func GetLibraries(files []os.FileInfo) []string {
+func GetLibraries(files []string) []string {
 	libraries := []string{}
-	for _, file := range files {
-		file.
+	for _, filename := range files {
+		file, err := os.Open(filename)
+		if err != nil {
+			continue
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			s := scanner.Text()
+			if strings.Contains(s, "use ") {
+				spl := strings.Split(s, " ")
+				if spl[0] == "use" && len(spl) == 2 {
+					lib := spl[1]
+					if !contains(libraries, lib) {
+						libraries = append(libraries, lib)
+					}
+				}
+			}
+		}
 	}
 	return libraries
 }
-*/
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}

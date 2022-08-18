@@ -12,16 +12,18 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("Inspected Source Files:")
-	for _, f := range files {
-		fmt.Println(f)
-	}
 	/*
+		fmt.Println("Inspected Source Files:")
+		for _, f := range files {
+			fmt.Println(f)
+		}
 		fmt.Printf("\n\n\n")
 		fmt.Println("Found Libraries:")
-		libraries := libs.GetLibraries(files)
-		for _, l := range libraries {
-			fmt.Println(l)
-		}
 	*/
+
+	libraries := libs.GetLibraries(files)
+	for _, l := range libraries {
+		fmt.Println(l)
+	}
+
 }
