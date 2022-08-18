@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"vhdl/libs"
+	"github.com/yorandrei/vhdl_libs_lister/libs"
 )
 
 func main() {
