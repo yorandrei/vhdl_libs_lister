@@ -102,11 +102,13 @@ func FindLibs(files <-chan string, libs chan<- string, wg *sync.WaitGroup) {
 	}
 }
 
-func FilterLibs(libs <-chan string, flibs *([]string)) {
+func FilterLibs(libs <-chan string, flibs *([]string), mu *sync.Mutex) {
 	for l := range libs {
+		(*mu).Lock()
 		if !contains(*flibs, l) {
 			*flibs = append(*flibs, l)
 		}
+		(*mu).Unlock()
 	}
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	const NUM_THREADS = 50
+	const NUM_THREADS = 10
 	start := time.Now()
 	files, err := libs.ListFiles()
 	t := time.Now()
@@ -31,10 +31,13 @@ func main() {
 
 	var libraries []string
 
+	var mu sync.Mutex
 	var wg sync.WaitGroup
 	start = time.Now()
 
-	go libs.FilterLibs(lch, &libraries)
+	go libs.FilterLibs(lch, &libraries, &mu)
+	go libs.FilterLibs(lch, &libraries, &mu)
+	go libs.FilterLibs(lch, &libraries, &mu)
 
 	for t := 0; t < NUM_THREADS; t++ {
 		wg.Add(1)
@@ -47,10 +50,10 @@ func main() {
 	wg.Wait()
 	close(lch)
 	t = time.Now()
+
 	fmt.Println("Searching libraries took: ", t.Sub(start))
 
 	for _, l := range libraries {
 		fmt.Println(l)
 	}
-
 }
