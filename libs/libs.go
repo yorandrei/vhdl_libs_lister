@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 func ListFiles() ([]string, error) {
@@ -76,6 +77,37 @@ func GetLibraries(files []string) []string {
 		}
 	}
 	return libraries
+}
+
+func FindLibs(files <-chan string, libs chan<- string, wg *sync.WaitGroup) {
+	defer (*wg).Done()
+	for filename := range files {
+		file, err := os.Open(filename)
+		if err != nil {
+			continue
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			s := scanner.Text()
+			if strings.Contains(s, "use ") {
+				spl := strings.Split(s, " ")
+				if spl[0] == "use" && len(spl) == 2 {
+					lib := spl[1]
+					libs <- lib
+				}
+			}
+		}
+	}
+}
+
+func FilterLibs(libs <-chan string, flibs *([]string)) {
+	for l := range libs {
+		if !contains(*flibs, l) {
+			*flibs = append(*flibs, l)
+		}
+	}
 }
 
 func contains(s []string, str string) bool {
